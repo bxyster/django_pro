@@ -1,0 +1,287 @@
+{% extends 'base.html' %}
+{% block main-head %}
+<link href="/static/bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css" rel="stylesheet">
+{% endblock %}
+{% block page-title %}
+yw
+{% endblock %}
+{% block page-header %}
+{% endblock %}
+{% block page-content %}
+<!-- /.row -->
+            <div class="row">
+                <!-- /.col-lg-12 -->
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+							<button class="btn btn-info" id='addaccountBtn'>用户添加</button>
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                            <div class="dataTable_wrapper">
+                                <table class="table table-striped table-bordered table-hover" id="dataTables-example">
+                                    <thead>
+                                        <tr>
+											<th>用户名</th>
+                                            <th>姓  名</th>
+                                            <th>邮  箱</th>
+                                            <th>联系方式</th>
+                                            <th>部  门</th>
+                                            <th>角  色</th>
+                                            <th>激  活</th>
+                                            <th>操  作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+											{% for i in GetUser%}
+                                        <tr class="gradeU">
+
+                                            <td><a href='/account/account_detail/{{i.id}}'>{{i.username}}</a></td>
+                                            <td>{{i.nickname}}</td>
+                                            <td>{{i.email}}</td>
+                                            <td>{{i.phone}}</td>
+                                            <td class="center">{{i.dept}}</td>
+											{% for k,v in list_role.items%}
+                                            	{% if k == i.role %}
+                                                	<td>{{v}}</td>
+                                            	{%endif%}
+                                        	{%endfor%}
+                                            {%if i.is_active%}
+                                                    <td class="center "><p class="glyphicon glyphicon-ok"></p></td>
+                                            {%else%}
+                                                    <td class="center"><p></p></td>
+                                            {%endif%}
+                                            <td class="center">
+												<a class="btn btn-xs btn-primary" href="/account/account_detail/{{i.id}}">查看</a>
+												<a class="btn btn-xs btn-info" href="/account/account_edit/{{i.id}}">编辑</a>
+                                                <button class="btn btn-xs btn-danger " data-toggle="modal"  onclick="clickurl('{{i.id}}')"  data-target="#myModal" >删除</button>
+                                                <a class="btn btn-xs btn-warning" href="/account/setpasswd/{{i.id}}">修改密码</a>
+
+                                            </td>
+                                        </tr>
+											{% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+					</div>
+                </div>
+    </div>
+<div class="modal fade" id='addaccountModal'>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">用户添加</h4>
+      </div>
+      <div class="modal-body">
+<form class="form-horizontal" id='addmacForm'>
+{% csrf_token %}
+  <div class="form-group">
+    <label for="inputEmail3" class="col-sm-2 control-label">用户名</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name='user_name' id='user_name'>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="inputEmail3" class="col-sm-2 control-label">密码</label>
+    <div class="col-sm-10">
+      <input type="password" class="form-control" name='password' id='password'>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="inputEmail3" class="col-sm-2 control-label">确认密码</label>
+    <div class="col-sm-10">
+      <input type="password" class="form-control" name='password1' id='password1'>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="inputPassword3" class="col-sm-2 control-label">姓  名</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name='nick_name' id='nick_name'>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="inputPassword3" class="col-sm-2 control-label">邮  箱</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name='email_name'id='email_name'>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="inputPassword3" class="col-sm-2 control-label">联系方式</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name='phone' id='phone'>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="inputPassword3" class="col-sm-2 control-label">性别</label>
+    <div class="col-sm-10">
+			<label class="radio-inline">
+           <input type="radio" name="sex_name" id="optionsRadiosInline1" value="1" checked>男
+       		</label>
+       		<label class="radio-inline">
+           <input type="radio" name="sex_name" id="optionsRadiosInline2" value="2">女
+       </label>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="inputPassword3" class="col-sm-2 control-label">部  门</label>
+    <div class="col-sm-10">
+    <select name="dept_name" id="role_name" class="form-control">
+		{% for info in dep_list %}
+		<option id={{info.id}} value="{{info.id}}">{{info.name}}</option>
+		{% endfor %}
+    </select>
+    </div>
+  </div>
+<div class="form-group">
+    <label for="inputPassword3" class="col-sm-2 control-label">角  色</label>
+    <div class="col-sm-10">
+    <select name="role_name" id="role_name" class="form-control">
+		{% for k,v in list_role.items %}
+		<option id="{{k}}" value="{{k}}">{{v}}</option>
+		{% endfor %}
+    </select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="inputPassword3" class="col-sm-2 control-label">是否激活</label>
+    <div class="col-sm-10">
+			<label class="radio-inline">
+           <input type="radio" name="isactive" id="optionsRadiosInline1" value="1" checked>是
+       		</label>
+       		<label class="radio-inline">
+           <input type="radio" name="isactive" id="optionsRadiosInline2" value="0">否
+       </label>
+    </div>
+  </div>
+</form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary" id='confirmAddmacBtn'>确认</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- 调用模态窗口-->
+ <div class="modal fade" id="myModal" tabindex="-1" role="dialog"  id="myModal" aria-labelledby="myModalLabel">
+   <div class="modal-dialog" role="document">
+     <div class="modal-content">
+       <div class="modal-header">
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+         <h4 class="modal-title" id="myModalLabel">系统提示</h4>
+       </div>
+       <div class="modal-body">
+              <p id="getdata">确定要删除吗</p>
+       </div>
+         <div class="modal-footer">
+             <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+             <a class="btn btn-primary" href="/account/account_list/" id="postdel">确定</a>
+         </div>
+     </div>
+   </div>
+</div>
+
+{% endblock %}
+{% block page-script%}
+<!-- DataTables JavaScript -->
+<script src="/static/bower_components/datatables/media/js/jquery.dataTables.min.js"></script>
+<script src="/static/bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#dataTables-example').DataTable({
+				"bSort": false,
+				"sPaginationType": "full_numbers",
+				"oLanguage": {
+				"sLengthMenu": "每页显示 _MENU_条",
+				"sZeroRecords": "没有找到符合条件的数据",
+				"sProcessing": "&lt;img src=’./loading.gif’ /&gt;",
+				"sInfo": "当前第 _START_ - _END_ 条　共计 _TOTAL_ 条",
+				"sInfoEmpty": "木有记录",
+				"sInfoFiltered": "(从 _MAX_ 条记录中过滤)",
+				"sSearch": "搜索：",
+				"oPaginate": {
+				"sFirst": "首页",
+				"sPrevious": "前一页",
+				"sNext": "后一页",
+				"sLast": "尾页"
+				}
+			}
+        });
+    });
+    </script>
+	<script>
+	$('#addaccountBtn').click(function(){
+		$('#addaccountModal').modal('show');
+	})
+	function clickurl(url){
+    $("#postdel").click(function() {
+        $.get("/account/account_del/"+url,
+                 function (data) {
+                    $('#myModal').modal('hide')
+                    $("#getdata").html(data);
+                    $('#myModal2').modal('show');
+                });
+    });
+   }
+	$('#confirmAddmacBtn').click(function(){
+		var is_val = true
+		$('#addmacForm').find('input').each(function(i,v){
+			if (!$(v).val()) {
+				$(v).after('<span class="text-danger">必填字段</span>')
+				is_val = false
+			}
+		})
+		if ($("#password").val() != $("#password1").val()){
+           　　$("#getdata").html("两次输入的密码不一致!!!");
+               $('#myModal').modal('show');
+               return false;
+		}
+		var reg=/^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/;
+       	if (!reg.test($("#email_name").val())) {
+           　　$("#getdata").html("请输入正确的邮箱格式!!!");
+               $('#myModal').modal('show');
+               return false;
+       　}
+		if (is_val) {
+
+		$.post('/account/account_add/',
+		      {
+			user_name: $("input[name='user_name']").val(),
+            nick_name: $("input[name='nick_name']").val(),
+            phone: $("input[name='phone']").val(),
+            password: $("input[name='password']").val(),
+            password1: $("input[name='password1']").val(),
+            email_name: $("input[name='email_name']").val(),
+            sex_name: $("input[name='sex_name']:checked").val(),
+            isactive: $("input[name='isactive']:checked").val(),
+            dept_name: $("select[name='dept_name']").val(),
+            role_name: $("select[name='role_name']").val(),
+            csrfmiddlewaretoken:'{{ csrf_token }}'},
+			function(data){
+			if (data=='no_permission') {
+				$("#getdata").html('普通用户无权限添加');
+                $('#myModal').modal('show');
+			}
+			else if	(data=='ok'){
+				$("#getdata").html('添加成功');
+                $('#myModal').modal('show');
+			}
+			else if (data=='name_exit') {
+				$("#getdata").html('姓名重复,请重新输入');
+                $('#myModal').modal('show');
+			}
+			else if (data=='username_exit'){
+				$("#getdata").html('用户名重复,请重新输入');
+                $('#myModal').modal('show');
+			}				
+			else {
+		}
+		})
+		};
+	})
+ $("#addmacForm").validate()
+</script>
+{% endblock %}

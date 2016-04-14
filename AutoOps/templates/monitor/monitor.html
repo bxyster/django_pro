@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+{% block main-head %}
+{% endblock %}
+{% block page-title %}
+yw
+{% endblock %}
+{% block page-header %}
+<link rel="stylesheet" href="/static/dist/bootstrap-multiselect-master/css/bootstrap-multiselect.css" type="text/css"/>
+<link href="/static/datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen">
+{% endblock %}
+{% block page-content %}
+<!-- /.row -->
+            <div class="row">
+                <!-- /.col-lg-12 -->
+                <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+								<form class="form-horizontal nice-validator n-yellow" method="post"  action="/cmdb/multi_info_collect/" id="multcmd" >
+								<div class="form-inline" id="form-inline-filter">	
+									<span id="project-filter" style="font-size: 15px;">机器分组：
+                            		        <select class="multiselect"  name="monitor_group1" id="monitor_group" >
+											{% for list in ipgroup_list %}
+                            		            <option value="{{list.id}}">{{list.name}}</option>
+											{% endfor %}
+                            		        </select>
+									</span>
+									<span id="project-filter" style="font-size: 15px;">监控主机：
+                            		        <select class="multiselect "  name="monitor_view" id="monitor_view">
+                            		            <option value="" >空</option>
+                            		        </select>
+									</span>
+									<span id="project-filter" style="font-size: 15px;">时间：
+										<input type="text" class="form-control"  id="start_time" name="start_time"  placeholder="">
+									</span>
+									<button type="button" class="btn btn-primary btn-sm" id="submit_monitor" style="margin-left: 10px" onclick="pageNav();">查询</button>
+                            	</div>
+								</form>
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+								<div class="col-lg-12">
+								出图位置一
+								<div id="container" style="min-width:400px;height:400px"></div>
+								</div>
+								<div class="col-lg-12">
+								出图位置二
+								<div id="container1" style="min-width:400px;height:400px" ></div>
+								</div>
+                        </div>
+					</div>
+                </div>
+    </div>
+{% endblock %}
+{% block page-script%}
+<script type="text/javascript" src="/static/dist/bootstrap-multiselect-master/js/bootstrap-multiselect.js"></script>
+<script type="text/javascript" src="/static/dist/Highstock/js/highstock.js"></script>
+<script type="text/javascript" src="/static/datetimepicker/js/bootstrap-datetimepicker.min.js" charset="UTF-8"></script>
+<script type="text/javascript" src="/static/datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	var myDate = new Date();
+	var y = myDate.getFullYear();
+	var m = myDate.getMonth()+1;
+	m =(m<10 ? "0"+m:m);
+	var d = myDate.getDate();
+	d =(d<10 ? "0"+d:d);
+	$('#start_time').val(y+'-'+m+'-'+d)
+	$('.multiselect').multiselect({
+	        enableFiltering: true,
+	        });
+    $('#start_time').datetimepicker({
+        language:  'zh-CN',
+        format: 'yyyy-mm-dd',
+        weekStart: 1,
+        todayBtn:  1,
+        autoclose: 1,
+        todayHighlight: 1,
+        startView: 2,
+       	minView: 2,
+        forceParse: 1,
+    });
+
+});
+
+</script>
+<script>
+$(document).ready(function() {
+	$("#monitor_group").change(function(){
+            var group_id = $("#monitor_group").val();
+				 $.ajax({url:'/monitor/monitor/'+group_id+'/',
+                      type:'post',
+                      data:{
+                        	m:group_id,
+                        	csrfmiddlewaretoken:'{{ csrf_token }}'
+						},
+                        success:function(arg){
+							var obj = jQuery.parseJSON(arg);
+							console.log(obj.dict_name);
+							$("#monitor_view option").remove();
+							var jsonObj = obj.dict_name;
+							optionstring = ''
+							for(var item in jsonObj)
+							{
+								optionstring += "<option value=\'"+ jsonObj[item] +"\' >"+ item +"</option>";
+							}
+							$('#monitor_view').html(optionstring).multiselect('rebuild');
+							//console.log(optionstring);
+                         }
+                });
+        });
+
+});
+</script>
+<script>
+$(document).ready(function() {
+ $(function () {
+    Highcharts.setOptions({
+        global: {
+            useUTC: false
+        }
+    });
+    $.getJSON('/monitor/monitor_graph/', function (data) {
+
+        // Create the chart
+        $('#container').highcharts('StockChart', {
+       // chart:{
+       // events:{
+       //     load:function(){
+       //         var series = this.series[0]
+       //         setInterval(function(){
+       //         $.getJSON('/monitor/monitor_graph/',function(res){
+       //             $.each(res,function(i,v){
+       //                 series.addPoint(v)
+       //             })
+       //         })
+       //         },3000)
+       //     }
+       // }
+       //},
+            rangeSelector : {
+                selected : 1
+            },
+            title : {
+                text : '内存使用数据[M]'
+            },
+            series : [{
+                name : '本机内存',
+                data : data,
+                tooltip: {
+                    valueDecimals: 2
+                }
+            }]
+        });
+    });
+ });
+
+});
+
+//cpu_loads
+$(function () {
+    var seriesOptions = [],
+        seriesCounter = 0,
+        names = ['LAVG_1', 'LAVG_5', 'LAVG_15'],
+        // create the chart when all data is loaded
+        createChart = function () {
+
+            $('#container1').highcharts('StockChart', {
+
+                rangeSelector: {
+                    selected: 4
+                },
+
+                yAxis: {
+                    labels: {
+                        formatter: function () {
+                            return (this.value > 0 ? ' + ' : '') + this.value + '%';
+                        }
+                    },
+                    plotLines: [{
+                        value: 0,
+                        width: 2,
+                        color: 'silver'
+                    }]
+                },
+
+                plotOptions: {
+                    series: {
+                        compare: 'percent'
+                    }
+                },
+
+            	title : {
+                	text : 'CPU负载情况'
+            	},
+               // tooltip: {
+               //     pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change}%)<br/>',
+               //     valueDecimals: 2
+               // },
+
+                series: seriesOptions
+            });
+        };
+
+    $.each(names, function (i, name) {
+
+        $.getJSON('/monitor/monitor_cpu_graph/' + name.toLowerCase() ,    function (data) {
+	    if (name=='LAVG_1'){
+		name = '1分钟负载'
+	    }else if (name=='LAVG_5'){
+		name = '5分钟负载'
+	    }else if (name=='LAVG_15'){
+		name = '15分钟负载'
+            };
+            seriesOptions[i] = {
+                name: name,
+                data: data
+            };
+
+            // As we're loading the data asynchronously, we don't know what order it will arrive. So
+            // we keep a counter and create the chart when all the data is loaded.
+            seriesCounter += 1;
+
+            if (seriesCounter === names.length) {
+                createChart();
+            }
+        });
+    });
+});
+
+
+</script>
+
+
+
+{% endblock %}

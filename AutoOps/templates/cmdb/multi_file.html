@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block  page-content %}
+		<div class="row">
+                  <div class="col-lg-12">
+                      <!--breadcrumbs start -->
+                      <ul class="breadcrumb">
+                          <li><a href="/account/ip_list/"><i class="icon-home"></i>机器管理</a></li>
+                          <li class="active">文件批量分发</li>
+                      </ul>
+                      <!--breadcrumbs end -->
+                  </div>
+        </div>
+            <div class="row">
+				 <div class="col-lg-12">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            文件批量分发
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                            <!-- Nav tabs -->
+                            <ul class="nav nav-tabs">
+                                <li class="active"><a href="#home" data-toggle="tab">上传文件</a>
+                                </li>
+                                <li><a href="#profile" data-toggle="tab">下发文件</a>
+                                </li>
+                            </ul>
+
+                            <!-- Tab panes -->
+                            <div class="tab-content">
+                                <div class="tab-pane fade in active" id="home">
+                    <form class="form-horizontal nice-validator n-yellow" method="post"  action="" >
+						<div  class="panel-body">
+						 <div class="form-group"><label class="col-sm-2 control-label">上传文件</label>
+                            <div class="col-sm-6"><input type="file"></div>
+                        </div>
+                         {% csrf_token %}
+                        <div class="hr-line-dashed"></div>
+                        <div class="form-group">
+                            <div class="col-sm-4 col-sm-offset-5">
+                                <a type="reset" class="btn btn-primary" href="/cmdb/ip_list/" > 取消 </a>
+                                <button type="button" class="btn btn-primary" id="useradd"> 提交 </button>
+                            </div>
+                        </div>
+                    </form>
+                                </div>
+						</div>
+                                <div class="tab-pane fade" id="profile">
+                    <form class="form-horizontal nice-validator n-yellow" method="post"  action="" >
+						<div  class="panel-body">
+                        <div class="form-group"><label class="col-sm-2 control-label">执行机器组</label>
+                                <div class="col-sm-4">
+                                    <select class="form-control" name="ipgrouplist" required>
+                                        {% for i in IpGrouplist %}
+                                                <option value="{{i.id}}">{{i.name}}</option>
+                                        {%endfor%}
+                                    </select>
+                                </div>
+                        </div>
+						 <div class="form-group"><label class="col-sm-2 control-label">下发文件</label>
+                            <div class="col-sm-6"><input type="input" class="form-control" ></div>
+                        </div>
+                         {% csrf_token %}
+                        <div class="hr-line-dashed"></div>
+                        <div class="form-group">
+                            <div class="col-sm-4 col-sm-offset-5">
+                                <a type="reset" class="btn btn-primary" href="/cmdb/ip_list/" > 取消 </a>
+                                <button type="button" class="btn btn-primary" id="useradd"> 提交 </button>
+                            </div>
+                        </div>
+						<div>
+                    </form>
+                                </div>
+							</div>
+                            </div>
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>
+                    <!-- /.panel -->
+                </div>
+                <!-- /.col-lg-12 -->
+
+		<div class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        命令执行的结果
+                    </div>
+                	<div class="panel-body">
+						xxxxx
+					</div> <!-- /.panel-body -->
+				</div> <!-- /.panel -->
+			</div> <!-- /.col-lg-12 -->
+		</div><!-- /.row -->
+
+			<!-- 模态框 -->
+           <div class="modal fade" id="myModal" tabindex="-1" role="dialog"  id="myModal" aria-labelledby="myModalLabel">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">系统提示</h4>
+                  </div>
+                  <div class="modal-body">
+                         <p id="getdata">ddddddd</p>
+                  </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        <a class="btn btn-primary" href="#">确定</a>
+
+                    </div>
+                </div>
+              </div>
+           </div>
+
+
+    {% endblock %}
+{% block  page-script %}
+{%endblock%}
