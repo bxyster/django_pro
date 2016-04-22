@@ -46,7 +46,6 @@ def cmd_exec(bind_host_id,user_id,cmd ):
         res_status = 'failed'
         cmd_result = "%s\n%s\n=============#End#=====================\n" %(cmd_result,result)
     print cmd_result
-    return cmd_result
 
 def file_tranfer_exec(task_id,bind_host_id,user_id,content ):
     #print '-->',task_id,bind_host_id,user_id,content

@@ -56,7 +56,7 @@
                         <div class="form-group">
                             <div class="col-sm-4 col-sm-offset-5">
                                 <button type="reset" class="btn btn-primary" href="#" > 重置 </button>
-                                <button type="submit" class="btn btn-primary" id="useradd"> 提交 </button>
+                                <button type="button" class="btn btn-primary" id="opt_cmd" value="提交"> 提交 </button>
                             </div>
                         </div>
                     </form>
@@ -70,18 +70,15 @@
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         命令执行的结果：
-						<button class="btn btn-xs btn-info">主机数：{{count_ip}}</button>
-						<button class="btn btn-xs btn-success">成功：{{success_ip}}</button>
-						<button class="btn btn-xs btn-danger">失败：{{failed_ip}}</button>
+			<button class="btn btn-xs btn-info" id="hostnums">主机数：0</button>
+			<button class="btn btn-xs btn-success" id="successnums">成功数：0</button>
+			<button class="btn btn-xs btn-danger" id="failednums">失败数：0</button>
                     </div>
-                	<div class="panel-body" id='result'>
-						{% autoescape off %}
-							 {{result}}
-						{% endautoescape %}
-					</div> <!-- /.panel-body -->
-				</div> <!-- /.panel -->
-			</div> <!-- /.col-lg-12 -->
-		</div><!-- /.row -->
+                		<div class="panel-body" id='result'>
+				</div> <!-- /.panel-body -->
+		</div> <!-- /.panel -->
+	    </div> <!-- /.col-lg-12 -->
+	</div><!-- /.row -->
 
 			<!-- 模态框 -->
            <div class="modal fade" id="myModal" tabindex="-1" role="dialog"  id="myModal" aria-labelledby="myModalLabel">
@@ -111,11 +108,60 @@
 
 $(document).ready(function() {
 
-$('.multiselect').multiselect({
+    $('.multiselect').multiselect({
 	includeSelectAllOption: true,
 	enableCaseInsensitiveFiltering: true,
 	});
-});
 
+
+
+
+    $("#opt_cmd").click(function(){
+	$("#opt_cmd").attr("class","btn btn-primary disabled")
+	$("#opt_cmd").text("正在执行")
+	var ip_list=new Array();
+	var ipgroup_list=new Array();
+	var cmds = $("#cmd_name").val();
+	$('#iplist option:selected').each(function(i,item){
+		ip_list[i]=(item.value)
+
+	});
+	$('#ipgrouplist option:selected').each(function(i,item){
+		ipgroup_list[i]=(item.value)
+
+	});
+	if ( (ip_list.length == 0) && (ipgroup_list.length == 0) ) {
+	    	alert("主机或者主机组选项为空")
+		$("#opt_cmd").attr("class","btn btn-primary")
+		$("#opt_cmd").text("提交")
+
+	};
+	if (cmds.length == 0){
+	    	alert("命令为空")
+		$("#opt_cmd").attr("class","btn btn-primary")
+		$("#opt_cmd").text("提交")
+	};
+        $.ajax({url:'/cmdb/multi_cmd/',
+                      type:'post',
+                      data:{
+        		exec_type1: $("#exec_type").val(),
+			iplist1: ip_list,
+        		ipgrouplist1: ipgroup_list,
+        		cmd_name1: $("#cmd_name").val(),
+                        csrfmiddlewaretoken:'{{ csrf_token }}',
+                      },
+                        success:function(arg){
+			  var obj = jQuery.parseJSON(arg)
+                          console.log(obj.result);
+			  $("#opt_cmd").attr("class","btn btn-primary");
+			  $("#opt_cmd").text("提交");
+			  $("#result").html(obj.result);
+			$("#hostnums").html("主机数："+obj.count_ip);
+			$("#failednums").html("失败数："+obj.failed_ip);
+			$("#successnums").html("成功数："+obj.success_ip);
+                         },
+                });
+	});
+});
 </script>
 {%endblock%}

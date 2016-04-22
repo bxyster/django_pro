@@ -10,6 +10,7 @@ urlpatterns = [
   url(r'^ip_user/$',ip_user),
   url(r'^ipgroup_list/$',ipgroup_list),
   url(r'^multi_cmd/$',multi_cmd),
+  #url(r'^multi_result/$',multi_result),
   url(r'^multi_info_collect/$',multi_info_collect),
   url(r'^multi_file/$',multi_file),
   url(r'^task_detail/(\d+)$',task_detail),

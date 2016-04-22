@@ -82,16 +82,27 @@ def ip_list(request):
 
 @login_required
 def multi_cmd(request):
-	result = ''
-	count_ip = 0 
-	success_ip = 0
-	failed_ip = 0
-	iplists = []
+	IpGrouplist = IpGroup.objects.all()
+	Iplist = IpManage.objects.all()
+	kwvars = {
+		'Iplist':Iplist,
+		'IpGrouplist':IpGrouplist,
+        'login_user':request.user,
+        'user_role':request.session.get('user_role'),
+	}
 	if request.method == 'POST':
-		exec_type = request.POST.get('exec_type')
-		ipid_list = request.POST.getlist('iplist')
-		groups_id = request.POST.getlist('ipgrouplist')
-		cmd_name = request.POST.get('cmd_name')
+		result = ''
+		count_ip = 0 
+		success_ip = 0
+		failed_ip = 0
+		iplists = []
+		exec_type = request.POST.get('exec_type1')
+		ipid_list = request.POST.getlist('iplist1[]')
+		groups_id = request.POST.getlist('ipgrouplist1[]')
+		cmd_name = request.POST.get('cmd_name1')
+		print exec_type,ipid_list,groups_id,cmd_name
+		if not exec_type or not cmd_name:
+			return HttpResponse('no ok')
 		if exec_type == 'ip_list':
 			for id in ipid_list:
 				if 'multiselect-all' not in id:
@@ -114,19 +125,16 @@ def multi_cmd(request):
 		result = result.replace('\n','<br>')
 		success_ip = result.count('=End=')
 		failed_ip = int(count_ip)-int(success_ip)
-	IpGrouplist = IpGroup.objects.all()
-	Iplist = IpManage.objects.all()
-	kwvars = {
-		'Iplist':Iplist,
-		'count_ip':count_ip,
-		'failed_ip':failed_ip,
-		'success_ip':success_ip,
-		'result':result,
-		'IpGrouplist':IpGrouplist,
-        'login_user':request.user,
-        'user_role':request.session.get('user_role'),
-	}
+		kwvars = {
+			'count_ip':count_ip,
+			'failed_ip':failed_ip,
+			'success_ip':success_ip,
+			'result':result,
+		}
+		return HttpResponse(json.dumps(kwvars))
 	return render_to_response('cmdb/multi_cmd.html',kwvars,RequestContext(request))
+
+@login_required
 
 @login_required
 def multi_file(request):

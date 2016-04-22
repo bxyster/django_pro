@@ -19,8 +19,9 @@ from account import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-	url(r'^$',views.index),
+    url(r'^$',views.index),
     url(r'^account/', include('account.urls')),
-	url(r'^cmdb/', include('cmdb.urls')),
-	url(r'^monitor/', include('monitor.urls')),
+    url(r'^cmdb/', include('cmdb.urls')),
+    url(r'^monitor/', include('monitor.urls')),
+    url(r'^game/', include('game.urls')),
 ]
