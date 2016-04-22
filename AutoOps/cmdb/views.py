@@ -134,7 +134,6 @@ def multi_cmd(request):
 		return HttpResponse(json.dumps(kwvars))
 	return render_to_response('cmdb/multi_cmd.html',kwvars,RequestContext(request))
 
-@login_required
 
 @login_required
 def multi_file(request):
